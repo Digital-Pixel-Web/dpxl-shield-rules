@@ -18,6 +18,7 @@ on a daily schedule, so sites get current rules without waiting for a plugin rel
 | `dist/manifest.json` | Versioned index: feed version, artifact URLs, SHA-256 of each artifact, and an Ed25519 signature over the manifest. |
 | `dist/waf-rules.json` | Web Application Firewall rules (regex patterns, targets, action, severity). |
 | `dist/signatures.json` | Malware/webshell signatures used by the scanner. |
+| Release `geodb-dbip-YYYY-MM` | Country database (DB-IP IP to Country Lite, CC BY 4.0), pinned by SHA-256 in the manifest. |
 
 > `dist/` is a skeleton for now — artifacts are published as the feed pipeline lands.
 
@@ -67,10 +68,13 @@ Rule and signature content is curated and adapted from open sources, including:
 - [OWASP Core Rule Set](https://coreruleset.org/) — Apache-2.0
 - [php-malware-finder](https://github.com/nbs-system/php-malware-finder) — GPL
 
-The GeoLite2 Country database distributed via this feed's releases includes
-GeoLite2 data created by MaxMind, available from
-[https://www.maxmind.com](https://www.maxmind.com), used under the GeoLite2 End
-User License Agreement.
+The country database distributed via this feed's releases is
+[IP to Country Lite](https://db-ip.com/db/download/ip-to-country-lite) by
+[DB-IP](https://db-ip.com), licensed under
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is republished
+unmodified (gzipped `.mmdb`), refreshed weekly from DB-IP's monthly release.
+Releases up to `geodb-2026-10-26` carried MaxMind GeoLite2 data and are no
+longer referenced by the manifest.
 
 Trademarks and product names belong to their respective owners. "Wordfence" is a trademark of
 Defiant, Inc.; it is referenced only for comparison and this project is not affiliated with it.

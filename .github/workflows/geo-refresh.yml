@@ -1,9 +1,10 @@
-name: Weekly GeoLite2 refresh
+name: Weekly country database refresh
 
-# Keeps the GeoLite2 Country database fresh for every DPXL Shield install: pulls
-# the latest from MaxMind, publishes it as a release asset, and re-signs the feed
-# manifest so the plugin picks it up automatically. Runs weekly (well within
-# MaxMind's 30-day freshness requirement) and can be triggered manually.
+# Keeps the country database fresh for every DPXL Shield install: pulls the
+# latest DB-IP IP to Country Lite (CC BY 4.0, free to redistribute with credit),
+# publishes it as a release asset, and re-signs the feed manifest so the plugin
+# picks it up automatically. DB-IP publishes monthly; the weekly run picks up a
+# new month within days, and can be triggered manually.
 
 on:
   schedule:
@@ -29,30 +30,32 @@ jobs:
           extensions: sodium
           coverage: none
 
-      - name: Download latest GeoLite2 Country from MaxMind
-        env:
-          MAXMIND_LICENSE_KEY: ${{ secrets.MAXMIND_LICENSE_KEY }}
+      - name: Download latest DB-IP IP to Country Lite
         run: |
           set -euo pipefail
-          curl -fsSL "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key=${MAXMIND_LICENSE_KEY}&suffix=tar.gz" -o geo.tar.gz
-          tar xzf geo.tar.gz
-          MMDB="$(find . -name 'GeoLite2-Country.mmdb' | head -1)"
-          test -n "$MMDB"
-          gzip -9 -c "$MMDB" > GeoLite2-Country.mmdb.gz
-          echo "DB_DATE=$(date -u +%Y-%m-%d)"      >> "$GITHUB_ENV"
+          # DB-IP names each monthly file by its month; early in a month the new
+          # file may not be out yet, so fall back to the previous month.
+          for MONTH in "$(date -u +%Y-%m)" "$(date -u -d "$(date -u +%Y-%m-01) -1 month" +%Y-%m)"; do
+            if curl -fsSL "https://download.db-ip.com/free/dbip-country-lite-${MONTH}.mmdb.gz" -o dbip-country-lite.mmdb.gz; then
+              break
+            fi
+          done
+          test -s dbip-country-lite.mmdb.gz
+          gzip -t dbip-country-lite.mmdb.gz
+          echo "DB_MONTH=${MONTH}"                  >> "$GITHUB_ENV"
           echo "FEED_VERSION=$(date -u +%Y.%m.%d)"  >> "$GITHUB_ENV"
 
-      - name: Publish GeoLite2 release asset
+      - name: Publish country database release asset
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          TAG="geodb-${DB_DATE}"
-          gh release create "$TAG" GeoLite2-Country.mmdb.gz \
-            --title "GeoLite2 Country DB (${DB_DATE})" \
-            --notes "This product includes GeoLite2 data created by MaxMind, available from https://www.maxmind.com." \
-            || gh release upload "$TAG" GeoLite2-Country.mmdb.gz --clobber
-          echo "GEO_URL=https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/GeoLite2-Country.mmdb.gz" >> "$GITHUB_ENV"
+          TAG="geodb-dbip-${DB_MONTH}"
+          gh release create "$TAG" dbip-country-lite.mmdb.gz \
+            --title "DB-IP IP to Country Lite (${DB_MONTH})" \
+            --notes "IP Geolocation by DB-IP (https://db-ip.com), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)." \
+            || gh release upload "$TAG" dbip-country-lite.mmdb.gz --clobber
+          echo "GEO_URL=https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/dbip-country-lite.mmdb.gz" >> "$GITHUB_ENV"
 
       - name: Rebuild + sign manifest
         env:
@@ -60,22 +63,23 @@ jobs:
         run: |
           set -euo pipefail
           php tools/build-feed.php --version="${FEED_VERSION}" --min-plugin=1.0.0 \
-            --geo-gz=GeoLite2-Country.mmdb.gz \
+            --geo-gz=dbip-country-lite.mmdb.gz \
             --geo-url="${GEO_URL}" \
-            --geo-version="${DB_DATE}"
+            --geo-version="${DB_MONTH}" \
+            --geo-source=dbip
 
       - name: Commit, push and tag the manifest
         run: |
           set -euo pipefail
-          rm -rf geo.tar.gz GeoLite2-Country.mmdb.gz GeoLite2-Country_*
+          rm -f dbip-country-lite.mmdb.gz
           if git diff --quiet -- dist/; then
-            echo "Manifest unchanged (MaxMind DB not newer) — nothing to publish."
+            echo "Manifest unchanged — nothing to publish."
             exit 0
           fi
           git config user.name  "dpxl-feed-bot"
           git config user.email "dev@digitalpixel.com.br"
           git add dist/
-          git commit -m "Weekly GeoLite2 refresh ${FEED_VERSION} (db ${DB_DATE})"
+          git commit -m "Weekly country DB refresh ${FEED_VERSION} (DB-IP ${DB_MONTH})"
           git push origin HEAD:main
           git tag "${FEED_VERSION}" || true
           git push origin "${FEED_VERSION}" || true

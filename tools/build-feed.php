@@ -20,7 +20,7 @@ declare(strict_types=1);
  *       [--artifact-base=https://cdn.jsdelivr.net/gh/Digital-Pixel-Sites/dpxl-shield-rules@main/dist]
  */
 
-$opts = getopt('', ['version:', 'min-plugin::', 'artifact-base::', 'geo-gz::', 'geo-url::', 'geo-version::']);
+$opts = getopt('', ['version:', 'min-plugin::', 'artifact-base::', 'geo-gz::', 'geo-url::', 'geo-version::', 'geo-source::']);
 
 $version    = $opts['version'] ?? '';
 $minPlugin  = $opts['min-plugin'] ?? '1.0.0';
@@ -92,7 +92,7 @@ $manifest = [
     ],
 ];
 
-// Optional GeoLite2 database artifact. The gzipped .mmdb is a large binary hosted
+// Optional country database artifact (DB-IP IP to Country Lite, CC BY 4.0). The gzipped .mmdb is a large binary hosted
 // as a GitHub Release asset (not in the repo); the manifest only pins its URL +
 // SHA-256. Signing the manifest transitively authenticates it.
 $geoGz  = $opts['geo-gz']  ?? '';
@@ -110,6 +110,9 @@ if ($geoGz !== '' && $geoUrl !== '') {
         'sha256'     => hash('sha256', $geoBytes),
         'size'       => strlen($geoBytes),
         'db_version' => (string) ($opts['geo-version'] ?? ''),
+        // Tells the plugin which credit to show (DB-IP's CC BY 4.0 licence
+        // requires attribution). Not part of the signed payload: it only picks a label.
+        'source'     => (string) ($opts['geo-source'] ?? 'dbip'),
     ];
 
     echo "  geo_db:    " . strlen($geoBytes) . " bytes, sha256=" . hash('sha256', $geoBytes) . "\n";
