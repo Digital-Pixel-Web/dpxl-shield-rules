@@ -17,7 +17,7 @@ declare(strict_types=1);
  * Usage:
  *   DPXL_FEED_SIGNING_KEY="$(cat /path/to/signing.key)" \
  *   php tools/build-feed.php --version=2026.07.27 [--min-plugin=1.0.0] \
- *       [--artifact-base=https://cdn.jsdelivr.net/gh/Digital-Pixel-Sites/dpxl-shield-rules@main/dist]
+ *       [--artifact-base=https://cdn.jsdelivr.net/gh/Digital-Pixel-Web/dpxl-shield-rules@main/dist]
  */
 
 $opts = getopt('', ['version:', 'min-plugin::', 'artifact-base::', 'geo-gz::', 'geo-url::', 'geo-version::', 'geo-source::']);
@@ -25,7 +25,7 @@ $opts = getopt('', ['version:', 'min-plugin::', 'artifact-base::', 'geo-gz::', '
 $version    = $opts['version'] ?? '';
 $minPlugin  = $opts['min-plugin'] ?? '1.0.0';
 $artifactBase = rtrim(
-    $opts['artifact-base'] ?? 'https://cdn.jsdelivr.net/gh/Digital-Pixel-Sites/dpxl-shield-rules@main/dist',
+    $opts['artifact-base'] ?? 'https://cdn.jsdelivr.net/gh/Digital-Pixel-Web/dpxl-shield-rules@main/dist',
     '/'
 );
 

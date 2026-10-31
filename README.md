@@ -26,7 +26,7 @@ on a daily schedule, so sites get current rules without waiting for a plugin rel
 
 1. A daily cron job (with jitter) fetches `manifest.json` via the free
    [jsDelivr](https://www.jsdelivr.com/) CDN:
-   `https://cdn.jsdelivr.net/gh/Digital-Pixel-Sites/dpxl-shield-rules@main/dist/manifest.json`
+   `https://cdn.jsdelivr.net/gh/Digital-Pixel-Web/dpxl-shield-rules@main/dist/manifest.json`
 2. It verifies the manifest's **Ed25519 signature** against a public key embedded in the plugin.
 3. It applies the feed only if `feed_version` is **newer** than what's installed (anti-rollback).
 4. It downloads each artifact and verifies its **SHA-256** against the signed manifest.
