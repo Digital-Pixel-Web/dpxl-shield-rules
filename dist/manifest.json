@@ -1,12 +1,12 @@
 {
     "schema": 1,
-    "feed_version": "2026.11.16",
-    "generated_at": "2026-11-16T16:00:04+00:00",
+    "feed_version": "2026.11.23",
+    "generated_at": "2026-11-23T18:24:41+00:00",
     "min_plugin_version": "1.0.0",
     "artifacts": {
         "waf_rules": {
             "url": "https://cdn.jsdelivr.net/gh/Digital-Pixel-Web/dpxl-shield-rules@main/dist/waf-rules.json",
-            "sha256": "e067b4502416b2188c5f6e2c79303910064270c2b4b5145068df3f83d7990a38",
+            "sha256": "2884116460fbf8fc789ad0a98750f855f1106e4e070213a0e575206c5eca6b11",
             "size": 4668,
             "rules_count": 8
         },
@@ -18,5 +18,5 @@
             "source": "dbip"
         }
     },
-    "signature": "aGF4WdY8geFPAMfT22a2HTCBVlv0HXQunXTO1C+pfrclGFQWYA1nQ6rt+aC8cKYLYEuJTqXHeKl2XdgopDlBDQ=="
+    "signature": "krMOe1H602gwnsDLc83eKccx7QUeIvVNgo5W1KeIXmOSvIkHNI7VJGof1UfdkZkNcmrNIfQfjU8WVMHKEM/FAw=="
 }
